@@ -24,7 +24,6 @@ def _program(difficulty: str = "standard"):
         "time_cues": ["00:00 開始", "01:30 体の力みチェック", "03:00 仕上げの1呼吸"]
     }
 
-    # Life Kinetik drill (uses household items)
     drill = {
         "name": "左右非対称タッチ＆読み上げ（ボール or お手玉1個＋紙）",
         "base": [
@@ -47,7 +46,6 @@ def _program(difficulty: str = "standard"):
         "duration": "6–7分"
     }
 
-    # choose variant by difficulty
     variant = drill["easy"] if difficulty == "easy" else drill["hard"] if difficulty == "hard" else drill["standard"]
 
     lk = {
@@ -85,8 +83,4 @@ def health():
 def run_morning_program(difficulty: str = "standard"):
     return _program(difficulty)
 
-# ✅ Vercel が探すエントリポイント
-def handler(request):
-    from mangum import Mangum
-    asgi_handler = Mangum(app)
-    return asgi_handler(request)
+# ← ここにあった handler(request) は **削除**（Vercel では不要）
