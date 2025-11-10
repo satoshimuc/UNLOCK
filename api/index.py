@@ -1,19 +1,13 @@
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
-from fastapi_mcp import FastApiMCP
+from typing import Optional
 
 JST = timezone(timedelta(hours=9))
-
-app = FastAPI(title="UNLOCK MCP Server")
-
-# --- MCP wrapper ---
-mcp = FastApiMCP(app, name="unlock-morning-program")
-mcp.mount()
+app = FastAPI(title="UNLOCK Minimal Server")
 
 class MorningArgs(BaseModel):
-    difficulty: str | None = None  # "easy" | "standard" | "hard"
+    difficulty: Optional[str] = "standard"
 
 def _program(difficulty: str = "standard"):
     today = datetime.now(JST).strftime("%Y-%m-%d")
@@ -87,7 +81,12 @@ def _program(difficulty: str = "standard"):
 def health():
     return {"status": "ok"}
 
-@mcp.tool(name="run_morning_program", title="Run UNLOCK Morning Program")
-def run_morning_program(args: MorningArgs | None = None):
-    difficulty = (args.difficulty if args else None) or "standard"
+@app.get("/run_morning_program")
+def run_morning_program(difficulty: str = "standard"):
     return _program(difficulty)
+
+# ✅ Vercel が探すエントリポイント
+def handler(request):
+    from mangum import Mangum
+    asgi_handler = Mangum(app)
+    return asgi_handler(request)
